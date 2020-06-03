@@ -1,0 +1,4 @@
+[test]
+
+[droplets]
+droplet ansible_ssh_host=local

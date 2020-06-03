@@ -1,0 +1,18 @@
+---
+
+- name: install packages
+  yum:
+    enablerepo: remi,remi-{{ php_version }}
+    name: "{{ pakages }}"
+    state: present
+  tags: pak
+
+- name: service mariadb start
+  service:
+    name: "{{ item.name }}"
+    state: started
+    enabled: true
+  with_items: "{{ chk }}"
+  tags: chk
+
+- include: mysql_secure_installation.yml

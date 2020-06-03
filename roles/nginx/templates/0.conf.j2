@@ -1,0 +1,11 @@
+server {
+	listen {{ ip }}:80;
+	listen {{ ip }}:443;
+	ssl_certificate /etc/nginx/ssl/cert.pem;
+	ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+	ssl_stapling off;
+	server_name "";
+	access_log /dev/null;
+	error_log /dev/null;
+	return 444;
+}

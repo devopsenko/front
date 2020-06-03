@@ -1,0 +1,9 @@
+---
+
+pakages:
+  - iptables-services
+  - libselinux-python
+iptables:
+  - {src: 'iptables', dest: '/etc/sysconfig/'}
+chk:
+  - {name: iptables}

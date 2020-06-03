@@ -1,0 +1,33 @@
+---
+
+pakages:
+  - php
+  - php-xml
+  - php-gd
+  - php-mbstring
+  - php-fpm
+pakages2:
+  - php
+  - php-xml
+  - php-gd
+  - php-mbstring
+
+repo:
+  - {name: 'remi', description: 'remi', baseurl: "https://rpms.remirepo.net/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm", mirrorlist: "https://rpms.remirepo.net/enterprise/{{ ansible_distribution_major_version }}/remi/mirror", gpgcheck: "1" }
+  - {name: "{{ php_version }}", description: "{{ php_version }}", baseurl: "https://rpms.remirepo.net/enterprise/{{ ansible_distribution_major_version }}/{{ php_version }}/$basearch/", mirrorlist: "https://rpms.remirepo.net/enterprise/{{ ansible_distribution_major_version }}/{{ php_version }}/mirror", gpgcheck: "0" }
+
+reporpm: "https://rpms.remirepo.net/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm"
+
+gpg_keys:
+  - {key: 'https://rpms.remirepo.net/RPM-GPG-KEY-remi', state: 'present'}
+
+phpini:
+  - {path: "/etc/php.ini", regexp: "expose_php = On", replace: "expose_php = Off", backup: true }
+  - {path: "/etc/php.ini", regexp: "short_open_tag = Off", replace: "short_open_tag = On", backup: true }
+
+phpfpm:
+  - {path: "/etc/php-fpm.d/www.conf", regexp: "pm = dynamic", replace: "pm = ondemand", backup: true }
+  - {path: "/etc/php-fpm.d/www.conf", regexp: ";pm.status_path = /status", replace: "pm.status_path = /fpm_status", backup: true }
+
+chk:
+  - {name: php-fpm}

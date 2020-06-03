@@ -1,0 +1,77 @@
+user {{ nginx_user }};
+error_log {{ nginx_error_log }};
+{% block worker %}
+worker_processes {{ansible_processor_vcpus}};
+{% endblock %}
+pid /var/run/nginx.pid;
+{% for module in nginx_modules %}
+{% if module.module is defined %}
+{{module.module}}
+{% endif %}
+{% endfor %}
+{% block events %}
+events {
+    worker_connections {{ nginx_worker_connections }};
+}
+{% endblock %}
+
+{% block http %}
+http {
+    charset utf-8;
+    tcp_nopush {{ nginx_tcp_nopush }};
+    tcp_nodelay {{ nginx_tcp_nodelay }};
+    sendfile {{ nginx_sendfile }};
+    server_tokens {{ nginx_server_tokens }};
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    log_format main  {{ nginx_log_format }};
+    access_log {{ nginx_access_log }};
+    autoindex {{ nginx_autoindex }};
+    client_max_body_size {{ nginx_client_max_body_size }};
+    ssl_session_timeout {{ nginx_ssl_session_timeout }};
+    ssl_session_cache shared:SSL:{{ nginx_ssl_session_cache }};
+    ssl_session_tickets {{ nginx_ssl_session_tickets }};
+    ssl_protocols {{ nginx_ssl_protocols }};
+    ssl_prefer_server_ciphers {{ nginx_ssl_prefer_server_ciphers }};
+    ssl_ciphers '{{ nginx_ssl_ciphers }}';
+    ssl_stapling {{ nginx_ssl_stapling }};
+    ssl_stapling_verify {{ nginx_ssl_stapling_verify }};
+    resolver {{ nginx_resolver }} valid=30s;
+    resolver_timeout {{ nginx_resolver_timeout }};
+    keepalive_timeout {{ nginx_keepalive_timeout }};
+{% if nginx_fastcgi_cache_path %}
+    fastcgi_cache_path {{ nginx_fastcgi_cache_path }};
+{% endif %}
+{% if nginx_fastcgi_cache_key %}
+    fastcgi_cache_key {{ nginx_fastcgi_cache_key }};
+{% endif %}
+{% if nginx_proxy_cache_path %}
+    proxy_cache_path {{ nginx_proxy_cache_path }};
+{% endif %}
+    include {{ nginx_included_conf }};
+{% block status_page %}
+{% if nginx_status_page == true %}
+    server {
+        server_name "127.0.0.1";
+        allow 127.0.0.1;
+        allow ::1;
+        deny all;
+        location = {{ nginx_status_location }} {
+            stub_status on;
+            access_log off;
+        }
+{% block fpm_status_page %}
+{% if fpm_status_page == true %}
+        location /fpm_status {
+            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_param SCRIPT_FILENAME   $document_root$fastcgi_script_name;
+            include fastcgi_params;
+            access_log off;
+        }
+{% endif %}
+{% endblock %}
+    }
+{% endif %}
+{% endblock %}
+}
+{% endblock %}

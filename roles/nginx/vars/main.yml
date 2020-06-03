@@ -1,0 +1,21 @@
+---
+
+pakages:
+  - nginx
+  - nginx-module-geoip
+
+repo:
+  - {name: nginx,  description: nginx,  baseurl: "http://nginx.org/packages/centos/$releasever/$basearch/",  mirrorlist: "http://nginx.org/packages/centos/$releasever/$basearch/",  gpgcheck: "0" }
+
+conf:
+  - {src: 'nginx.conf.j2', dest: '/etc/nginx/nginx.conf', mode: '0644'}
+  - {src: '0.conf.j2', dest: '/etc/nginx/conf.d/0.conf', mode: '0644'}
+
+create_dirs:
+  - {path: '/var/cache/nginx/', state: 'directory', owner: 'nginx', group: 'root', mode: '0775'}
+  - {path: '/etc/nginx/ssl/', state: 'directory', owner: 'nginx', group: 'root', mode: '0644'}
+
+dirs:
+  - {src: 'nginx', dest: '/usr/src/', directory_mode: '644'}
+chk:
+  - {name: nginx}

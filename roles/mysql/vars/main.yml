@@ -1,0 +1,9 @@
+---
+
+pakages:
+  - mariadb-server
+  - php-mysql
+files:
+  - {src: 'my.cnf', dest: '/etc/', mode: '0644'}
+chk:
+  - {name: mariadb}

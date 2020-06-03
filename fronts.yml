@@ -1,0 +1,10 @@
+---
+- hosts: test
+  user: root
+  roles:
+      # - preset
+      # - firewall
+      # - users
+      # - nginx
+      # - php
+      - mysql

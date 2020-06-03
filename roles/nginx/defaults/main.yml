@@ -1,0 +1,48 @@
+---
+
+ip: '{{ ansible_default_ipv4.address }}'
+nginx_user: nginx
+nginx_worker_connections: '1024'
+nginx_modules: 
+  - name: http_geoip
+    module: load_module modules/ngx_http_geoip_module.so;
+  - name: stream_geoip
+    module: load_module modules/ngx_stream_geoip_module.so;
+nginx_error_log: '/var/log/nginx/error.log warn'
+nginx_access_log: /var/log/nginx/access.log main
+nginx_tcp_nopush: 'on'
+nginx_tcp_nodelay: 'on'
+nginx_sendfile: 'on'
+nginx_server_tokens: 'off'
+nginx_autoindex: 'off'
+nginx_client_max_body_size: '200M'
+nginx_fastcgi_cache_path: '/var/cache/fpm levels=1:2 keys_zone=fcgi:32m max_size=1g'
+nginx_fastcgi_cache_key: '$scheme$request_method$host$request_uri'
+nginx_proxy_cache_path: '/var/cache/nginx levels=1:2 keys_zone=all:32m max_size=1g'
+nginx_included_conf: '/etc/nginx/conf.d/*.conf'
+nginx_ssl_session_timeout: '1d'
+nginx_ssl_session_cache: '20m'
+nginx_ssl_session_tickets: 'off'
+nginx_ssl_protocols: 'TLSv1.2 TLSv1.3'
+nginx_ssl_prefer_server_ciphers: 'on'
+nginx_ssl_ciphers: 'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS'
+nginx_ssl_stapling: 'on'
+nginx_ssl_stapling_verify: 'on'
+nginx_resolver: '1.1.1.1 1.0.0.1 8.8.8.8 8.8.4.4'
+nginx_resolver_timeout: '2s'
+nginx_keepalive_timeout: '65'
+nginx_status_page: true
+nginx_status_location: /nginx_status
+fpm_status_page: true
+nginx_upstreams: []
+  # - name: test
+  #   strategy: "least_conn" # "least_conn", etc.
+  #   keepalive: 16 # optional
+  #   servers: {
+  #     "127.0.0.1:80"
+  #   }
+nginx_log_format: |-
+  '$remote_addr - $remote_user [$time_local] "$request" '
+                       '$status $body_bytes_sent "$http_referer" '
+                       '"$http_user_agent" "$http_x_forwarded_for"'
+

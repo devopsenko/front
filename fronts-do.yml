@@ -1,0 +1,16 @@
+---
+
+- hosts: localhost
+  connection: local
+  roles:
+      - create_droplet
+
+- hosts: droplet
+  user: root
+  roles:
+      - preset
+      - firewall
+      - users
+      - nginx
+      - php
+      - mysql

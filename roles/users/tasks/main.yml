@@ -1,0 +1,89 @@
+---
+- name: install
+  yum:
+    name: "{{ pakages }}"
+    state: present
+  tags: pak
+  notify:
+    - chkconfig remote services
+
+- name: add scponly shell
+  command: echo "/usr/bin/scponly" >> /etc/shells
+  changed_when: false
+  tags: shell
+
+- name: create groups
+  group:
+    name: "{{ item.group }}"
+    state: present
+  with_items: "{{ addgroup }}"
+  tags: gr
+
+- name: add users
+  user:
+    update_password: always
+    name: "{{ item.user }}"
+    password: "{{ item.password }}"
+    groups: "{{ item.groups }}"
+  with_items: "{{ hexausers }}"
+  tags: user
+
+- name: check directory exist /var/www/html
+  stat:
+    path: /var/www/html
+  register: dirchk
+  tags: ftphome
+
+- name: create /var/www/html
+  file:
+    path: /var/www/html
+    state: directory
+    owner: root
+    group: ftpusers
+  when: dirchk.stat.exists and dirchk.stat.isdir
+  tags: ftphome
+
+- name: add depusers
+  user:
+    update_password: always
+    name: "{{ item.user }}"
+    password: "{{ item.password }}"
+    groups: "{{ item.groups }}"
+    shell: "{{ item.shell }}"
+    home: "{{ item.home }}"
+  with_items: "{{ depusers }}"
+  register: result
+  ignore_errors: true
+  tags: depusers
+
+- name: del user i.pikh
+  user:
+    name: i.pikh
+    state: absent
+    remove: true
+  tags: del
+
+- name: copy files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items: "{{ files }}"
+  tags: cp
+
+- name: cron chmod.sh
+  cron:
+    name: chmod_script
+    minute: "*/1"
+    job: "/scripts/chmod.sh"
+  tags: chmod
+
+- name: Add authorized keys
+  authorized_key:
+    user: "{{ item.user }}"
+    state: present
+    key: "{{ item.key }}"
+  with_items: "{{ keys }}"
+  tags:
+    - add_key
+    - user

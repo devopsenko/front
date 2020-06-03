@@ -1,0 +1,16 @@
+---
+
+## php version php54/php56/php70
+php_version: "php56"
+
+## zabbix-agent version 3.0/3.2/3.4/4.0/4.2
+zabbix_version: "4.2"
+
+## name instance node hosting (DO/Linode)
+service_name: "test-ansible-3"
+
+## DigitalOcean region ams3/nyc1/nyc3/sfo2 https://api.digitalocean.com/v2/regions
+do_region: 'nyc3'
+
+## password mysql root
+mysql_root_password: '#########'

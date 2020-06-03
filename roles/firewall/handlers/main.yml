@@ -1,0 +1,9 @@
+---
+
+- name: chkconfig iptables
+  service:
+    name: "{{ item.name }}"
+    state: restarted
+    enabled: true
+  with_items: "{{ chk }}"
+  tags: chk

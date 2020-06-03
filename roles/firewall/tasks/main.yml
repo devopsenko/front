@@ -1,0 +1,38 @@
+---
+
+- name: install packages
+  yum:
+    name: "{{ pakages }}"
+    state: present
+  tags: pak
+
+- name: disable firewalld
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+  register: result
+  ignore_errors: true
+  tags: firewalld
+
+- name: disable selinux
+  selinux:
+    state: disabled
+  register: result
+  ignore_errors: true
+  tags: selinux
+
+- name: disable selinux via shell (setenforce 0)
+  command: setenforce 0
+  ignore_errors: true
+  changed_when: false
+  tags: selinux
+
+- name: iptables update rules
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items: "{{ iptables }}"
+  notify:
+    - chkconfig iptables
+  tags: ip

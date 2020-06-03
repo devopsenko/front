@@ -1,0 +1,65 @@
+---
+
+- name: repos install
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    state: present
+    mirrorlist: "{{ item.mirrorlist }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+  with_items: "{{ repo }}"
+  tags: repo
+
+- name: install packages
+  yum:
+    name: "{{ pakages }}"
+    state: present
+  tags: pak
+
+- name: copy dirs
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    directory_mode: "{{ item.directory_mode }}"
+  with_items: "{{ dirs }}"
+  tags: dir
+
+- name: create userful dirs
+  file:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  with_items: "{{ create_dirs }}"
+  tags: ngxdirs
+
+- name: check if certs exists
+  stat: path=/etc/nginx/ssl/cert.pem
+  register: cert
+  tags: chkcert
+
+- name: generate a self signed openssl certificate
+  command: "openssl req -newkey rsa:2048 -nodes -keyout privkey.pem -x509 -days {{ 365 | random }} -out cert.pem -subj '/C=  /ST=  /L=  /O=  /OU=  '"
+  args:
+    chdir: /etc/nginx/ssl/
+  when: not cert.stat.exists
+  tags: genssl
+
+- name: copy conf file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items: "{{ conf }}"
+  notify:
+    - chkconfig nginx
+  tags: cp
+
+- name: add logrotate config
+  copy:
+    src: logrotate
+    dest: /etc/logrotate.d/nginx
+    mode: 0644
+  tags: logrotate

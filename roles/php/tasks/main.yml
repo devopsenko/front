@@ -1,0 +1,59 @@
+---
+
+- name: install repo
+  yum:
+    name: "{{ reporpm }}"
+    state: present
+  tags: repo
+
+- name: import remi GPG key.
+  rpm_key:
+    key: "{{ item.key }}"
+    state: "{{ item.state }}"
+  with_items: "{{ gpg_keys }}"
+
+- name: get the rpm package facts
+  package_facts:
+    manager: "auto"
+
+- name: install packages via php-fpm
+  yum:
+    enablerepo: "remi,remi-{{ php_version }}"
+    name: "{{ pakages }}"
+    state: present
+    skip_broken: true
+  when: "'httpd' not in ansible_facts.packages"
+  notify:
+    - chkconfig php-fpm
+  tags: pak
+
+- name: install packages via not php-fpm
+  yum:
+    enablerepo: "remi,remi-{{ php_version }}"
+    name: "{{ pakages2 }}"
+    state: present
+  when: "'httpd' in ansible_facts.packages"
+  tags: pak
+
+- name: change options to php
+  replace:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+    backup: true
+  with_items: "{{ phpini }}"
+  notify:
+    - chkconfig php-fpm
+  tags: config
+
+- name: change options to php
+  replace:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+    backup: true
+  with_items: "{{ phpfpm }}"
+  when: "'httpd' not in ansible_facts.packages"
+  notify:
+    - chkconfig php-fpm
+  tags: config

@@ -1,0 +1,7 @@
+---
+
+- name: install packages
+  yum:
+    name: "{{ pakages }}"
+    state: present
+  tags: pak

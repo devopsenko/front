@@ -1,0 +1,19 @@
+---
+
+pakages:
+  - '*'
+  - epel-release
+  - yum-utils
+  - openssh-server
+  - rsync
+  - git
+  - gd
+  - gd-devel
+  - mailx
+  - wget
+  - gcc
+  - man
+  - geoip
+  - nano
+  - mc
+  - cronie
